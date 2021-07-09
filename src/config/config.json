@@ -1,0 +1,21 @@
+{
+  "development": {
+    "username": "root",
+    "password": "root",
+    "database": "db_kenzie_stack",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "test": {
+    "storage": ":memory:",
+    "dialect": "sqlite",
+    "logging": false
+  },
+  "production": {
+    "username": "root",
+    "password": "root",
+    "database": "db_kenzie_stack",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  }
+}
