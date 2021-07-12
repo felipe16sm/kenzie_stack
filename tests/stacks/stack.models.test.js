@@ -11,13 +11,25 @@ const toolData = {
   category_id: 1,
 };
 
-describe("Tools Model", () => {
+const stackData = {
+  name: "Projeto Novo",
+  description: "Meu super projeto",
+  tools: [{ id: 1 }],
+};
+
+const stackDataUpdated = {
+  name: "Projeto 2",
+  description: "Meu super projeto 2",
+  tools: [],
+};
+
+describe("Stack Model", () => {
   beforeAll(async () => {
     await testDb.sequelize.sync({ force: true });
   });
 
-  describe("Tools tests", () => {
-    test("Create a new tool on the database", async () => {
+  describe("Stacks tests", () => {
+    test("Create a new stack on the database", async () => {
       const category = await Category.create(categoryData);
 
       const tool = await Tools.create({
@@ -26,49 +38,101 @@ describe("Tools Model", () => {
         categoryId: toolData.category_id,
       });
 
-      expect(tool.id).toBe(1);
-      expect(tool.name).toBe(toolData.name);
-      expect(tool.description).toBe(toolData.description);
-      expect(tool.categoryId).toBe(toolData.category_id);
+      const tools = [];
+
+      for (let i = 0; i < stackData.tools.length; i++) {
+        const tool = await Tools.findOne({
+          where: { id: stackData.tools[i].id },
+        });
+        tools.push(tool);
+      }
+
+      const stack = await Stack.create({
+        name: stackData.name,
+        description: stackData.description,
+      });
+
+      await stack.setTools(tools);
+
+      expect(stack.id).toBe(1);
+      expect(stack.name).toBe(stackData.name);
+      expect(stack.description).toBe(stackData.description);
     });
 
-    test("Get tool by id on the database", async () => {
-      const ToolById = await Tools.findOne({ where: { id: 1 } });
+    test("Get stack by id on the database", async () => {
+      const stackById = await Stack.findOne({ where: { id: 1 } });
 
-      expect(ToolById.name).toBe(toolData.name);
-      expect(ToolById.description).toBe(toolData.description);
-      expect(ToolById.categoryId).toBe(toolData.category_id);
+      expect(stackById.name).toBe(stackData.name);
+      expect(stackById.description).toBe(stackData.description);
     });
 
-    test("List all tools on the database", async () => {
-      const listTools = await Tools.findAll();
+    test("List all stacks on the database", async () => {
+      const listStacks = await Stack.findAll();
 
-      expect(listTools).toHaveLength(1);
-      expect(listTools[0].name).toBe(toolData.name);
-      expect(listTools[0].description).toBe(toolData.description);
-      expect(listTools[0].categoryId).toBe(toolData.category_id);
+      expect(listStacks).toHaveLength(1);
+      expect(listStacks[0].name).toBe(stackData.name);
+      expect(listStacks[0].description).toBe(stackData.description);
     });
 
-    test("Update tool on the database", async () => {
-      const updateTools = await Tools.findOne({ where: { id: 1 } });
-      updateTools.name = "NodeJS";
-      updateTools.description = "Backend Javascript";
-      updateTools.save();
+    test("Update stack on the database", async () => {
+      const tools = [];
 
-      expect(updateTools.name).toBe("NodeJS");
-      expect(updateTools.description).toBe("Backend Javascript");
-      expect(updateTools.categoryId).toBe(toolData.category_id);
-    });
+      for (let i = 0; i < stackDataUpdated.tools.length; i++) {
+        const tool = await Tools.findOne({
+          where: { id: stackDataUpdated.tools[i].id },
+        });
 
-    test("Delete tool on the database", async () => {
-      const deleteTools = await Tools.findOne({ where: { id: 1 } });
-      await deleteTools.destroy();
+        tools.push(tool);
+      }
 
-      const deletedToolSearch = await Tools.findOne({
+      const stack = await Stack.findOne({
         where: { id: 1 },
       });
 
-      expect(deletedToolSearch).toBe(null);
+      stack.name = stackDataUpdated.name;
+      stack.description = stackDataUpdated.description;
+
+      await stack.setTools(tools);
+
+      await stack.save();
+
+      const updatedStack = await Stack.findOne({
+        where: { id: 1 },
+        include: [
+          {
+            model: Tools,
+            attributes: [
+              "id",
+              "name",
+              "description",
+              "createdAt",
+              "updatedAt",
+              ["categoryId", "category_id"],
+            ],
+            through: {
+              attributes: [],
+            },
+          },
+        ],
+      });
+
+      expect(updatedStack.name).toBe(stackDataUpdated.name);
+      expect(updatedStack.description).toBe(stackDataUpdated.description);
+      expect(updatedStack.Tools).toHaveLength(0);
+    });
+
+    test("Delete stack on the database", async () => {
+      const stack = await Stack.findOne({
+        where: { id: 1 },
+      });
+
+      stack.destroy();
+
+      const deletedStackSearch = await Stack.findOne({
+        where: { id: 1 },
+      });
+
+      expect(deletedStackSearch).toBe(null);
     });
   });
 
