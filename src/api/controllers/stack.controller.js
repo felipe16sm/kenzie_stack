@@ -1,4 +1,5 @@
-const { Stack, Tools } = require("../../models");
+const { DBName } = require("../../typeDB");
+const { Stack, Tools } = require("../../models")(DBName);
 
 module.exports.create = async (req, res) => {
   const tools = [];

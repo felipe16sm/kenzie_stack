@@ -1,4 +1,5 @@
-const { Tools } = require("../../models");
+const { DBName } = require("../../typeDB");
+const { Tools } = require("../../models")(DBName);
 
 module.exports.create = async (req, res) => {
   const tools = await Tools.create({

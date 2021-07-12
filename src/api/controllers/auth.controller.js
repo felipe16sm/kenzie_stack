@@ -1,4 +1,5 @@
-const { User } = require("../../models");
+const { DBName } = require("../../typeDB");
+const { User } = require("../../models")(DBName);
 const config = require("../../config/passport");
 const jwt = require("jsonwebtoken");
 

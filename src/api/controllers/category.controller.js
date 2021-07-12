@@ -1,4 +1,5 @@
-const { Category } = require("../../models");
+const { DBName } = require("../../typeDB");
+const { Category } = require("../../models")(DBName);
 
 module.exports.create = async (req, res) => {
   const category = await Category.create(req.body);
